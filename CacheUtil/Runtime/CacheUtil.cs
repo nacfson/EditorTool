@@ -103,6 +103,7 @@ public class CacheUtil : MonoBehaviour, ICaching
         StringBuilder contentBuilder = new StringBuilder();
         contentBuilder.Append($@"using UnityEngine;
 using System.Collections.Generic;
+using RJ_TC;
 
 public class {className} : ICached
 {{
@@ -199,7 +200,7 @@ namespace RJ_TC
 
         if(fileContent.Contains(scriptContent))
         {
-            Debug.Log($"이미 중복된 코드가 추가되어있는 상태입니다.");
+            Debug.Log($"Code is already added");
             return;
         }
 
@@ -209,7 +210,7 @@ namespace RJ_TC
 
         if (insertPosition == -1)
         {
-            Debug.LogError($"패턴 '{insertPositionPattern}'을 찾을 수 없습니다.");
+            Debug.LogError($"Cannot find pattern '{insertPositionPattern}'.");
             return;
         }
 
@@ -226,7 +227,7 @@ namespace RJ_TC
         // 수정된 내용을 파일에 씁니다.
         File.WriteAllText(filePath, updatedContent);
 
-        Debug.LogError("코드가 성공적으로 추가되었습니다.");
+        Debug.Log("Code is added.");
     }
 
     private string GetNameOfResult(string result, int callCnt = 0)
