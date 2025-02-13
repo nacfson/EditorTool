@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
+using RJ_TC;
 
 public class CacheUtil : MonoBehaviour, ICaching
 {
