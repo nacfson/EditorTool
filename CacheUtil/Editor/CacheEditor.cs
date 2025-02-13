@@ -70,7 +70,7 @@ public class CacheEditor : Editor
         if (GUILayout.Button("Remove Cached Script", buttonStyle))
         {
             string className = target.GetType().Name;
-            RemoveCMScript(className);
+            RemoveCScript(className);
             RemoveCachedScript(target);
         }
         GUI.backgroundColor = prevColor;
@@ -136,7 +136,7 @@ public class CacheEditor : Editor
         }
         Debug.LogWarning("Cannot find cached script");
     }
-    public static void RemoveCMScript(string className)
+    public static void RemoveCScript(string className)
     {
         // CM 스크립트 경로 (예시로 설정)
         string cmScriptPath = CM.sCM_PATH;  // CM 스크립트 파일 경로를 정확히 설정해야 합니다.
@@ -149,8 +149,8 @@ public class CacheEditor : Editor
 
             // 제거할 코드 내용
             string scriptContent = $@"
-    public static {className}{CM.sCS} G_TC({className} obj) => G_TCI(obj) as {className}{CM.sCS};
-";
+    public static {className}{CM.sCS} G_TC({className} obj) => RJ_TC.CM.G_TCI(obj) as {className}{CM.sCS};
+"; 
 
             // 코드가 존재하는지 확인하고, 존재하면 제거
             if (cmScriptContent.Contains(scriptContent))

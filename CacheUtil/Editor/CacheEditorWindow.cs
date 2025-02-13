@@ -261,7 +261,7 @@ public class CacheEditorWindow : EditorWindow
                     string cachedScriptName = $"{className}{CM.sCS}";
 
                     Debug.Log($"CachedScriptName: {cachedScriptName}");
-                    CacheEditor.RemoveCMScript(className);
+                    CacheEditor.RemoveCScript(className);
 
                     // Unity 프로젝트 내에서 해당 Cached 클래스 파일 찾기
                     string[] guids = AssetDatabase.FindAssets(cachedScriptName);
