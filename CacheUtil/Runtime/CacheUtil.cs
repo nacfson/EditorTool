@@ -160,7 +160,7 @@ public class {className} : ICached
     public static void GenerateCMScript(string className)
     {
         string scriptContent = $@"
-    public static {className}{CM.sCS} G_TC({className} obj) => G_TCI(obj) as {className}{CM.sCS};
+    public static {className}{CM.sCS} G_TC({className} obj) => RJ_TC.CM.G_TCI(obj) as {className}{CM.sCS};
 ";  // 삽입할 코드 내용
 
         string filePath = CM.sCM_PATH; // 수정할 파일 경로
