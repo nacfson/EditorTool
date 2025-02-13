@@ -23,10 +23,9 @@ namespace RJ_TC
                 try
                 {
                     string cachedTypeName = $"{obj.GetType().Name}{sCS}";
-                    Type type = GetTypeFromAllAssemblies(cachedTypeName);
+                    Type type = Type.GetType(cachedTypeName);
                     object[] param = new object[] { obj.transform };
                     var instance = Activator.CreateInstance(type, param) as ICached;
-                    Debug.Log($"instance: {instance}");
                     s_cacheUtilDictonary.Add(hashCode, instance);
                 }
                 catch (Exception ex)
@@ -37,25 +36,7 @@ namespace RJ_TC
             }
             return s_cacheUtilDictonary[hashCode];
         }
-
-        public static Type GetTypeFromAllAssemblies(string typeName)
-        {
-            // 현재 도메인에 로드된 모든 어셈블리를 가져옵니다.
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                // 각 어셈블리에서 타입을 시도하여 가져옵니다.
-                Type type = assembly.GetType(typeName);
-
-                if (type != null)
-                {
-                    return type;  // 타입을 찾으면 반환
-                }
-            }
-
-            return null;  // 타입을 찾지 못하면 null 반환
-        }
     }
-
 }
 
 
