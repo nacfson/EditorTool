@@ -6,16 +6,17 @@ using UnityEngine;
 [InitializeOnLoad]
 public class CacheHierarchyEditor
 {
-    private static readonly Color searchBlockerColor = new Color(1f, 0.7f, 0.7f, 0.3f); // ¿¬ÇÑ »¡°£»ö
-    private static readonly Color cachingColor = new Color(0.7f, 1f, 0.7f, 0.3f); // ¿¬ÇÑ ÃÊ·Ï»ö
-    private static readonly Color cachingMainColor = new Color(0.7f, 0.7f, 1f, 0.3f); // ¿¬ÇÑ ÆÄ¶õ»ö
+    private static readonly Color searchBlockerColor = new Color(1f, 0.7f, 0.7f, 0.3f); // ì—°í•œ ë¹¨ê°„ìƒ‰
+    private static readonly Color cachingColor = new Color(0.7f, 1f, 0.7f, 0.3f); // ì—°í•œ ì´ˆë¡ìƒ‰
+    private static readonly Color cachingMainColor = new Color(0.7f, 0.7f, 1f, 0.3f); // ì—°í•œ íŒŒë€ìƒ‰
 
-    // ÀÌ Á¤Àû »ı¼ºÀÚ´Â ¿¡µğÅÍ ½ÃÀÛ ½Ã ÀÚµ¿À¸·Î ½ÇÇàµË´Ï´Ù.
+    // ì´ ì •ì  ìƒì„±ìëŠ” ì—ë””í„° ì‹œì‘ ì‹œ ìë™ìœ¼ë¡œ ì‹¤í–‰ë©ë‹ˆë‹¤.
     static CacheHierarchyEditor()
     {
-        // Hierarchy Ã¢¿¡ ¾ÆÀÌÅÛÀ» ±×¸± ¶§¸¶´Ù È£ÃâµÇ´Â ÀÌº¥Æ®¸¦ µî·ÏÇÕ´Ï´Ù.
+        // Hierarchy ì°½ì— ì•„ì´í…œì„ ê·¸ë¦´ ë•Œë§ˆë‹¤ í˜¸ì¶œë˜ëŠ” ì´ë²¤íŠ¸ë¥¼ ë“±ë¡í•©ë‹ˆë‹¤.
         EditorApplication.hierarchyWindowItemOnGUI += HandleHierarchyWindowItemOnGUI;
     }
+
 
     private static void HandleHierarchyWindowItemOnGUI(int instanceID, Rect selectionRect)
     {
@@ -23,48 +24,60 @@ public class CacheHierarchyEditor
 
         if (gameObject != null)
         {
-            Transform current = gameObject.transform;
-            bool hasSearchBlocker = false;
-            bool hasCaching = false;
-            bool isMainCaching = gameObject.GetComponent<ICaching>() != null;
+            // ë°°ê²½ìƒ‰ì„ ê·¸ë¦¬ê¸° ìœ„í•œ rect ì„¤ì •
+            Rect backgroundRect = new Rect(selectionRect);
+            backgroundRect.x = 0;
+            backgroundRect.width = EditorGUIUtility.currentViewWidth;
 
-            while (current != null)
+            // ICaching ì»´í¬ë„ŒíŠ¸ í™•ì¸
+            ICaching cachingComponent = gameObject.GetComponent<ICaching>();
+            if (cachingComponent != null)
             {
-                if (current.GetComponent<SearchBlocker>() != null)
+                // ICachingì„ ìƒì†ë°›ì€ ê°ì²´ëŠ” cachingMainColorë¡œ í‘œì‹œ
+                EditorGUI.DrawRect(backgroundRect, cachingMainColor);
+            }
+            else
+            {
+                // ë¶€ëª¨ ê°ì²´ë“¤ì„ ê²€ì‚¬í•˜ì—¬ ê°€ì¥ ê°€ê¹Œìš´ ICaching ì°¾ê¸°
+                Transform parent = gameObject.transform.parent;
+                while (parent != null)
                 {
-                    hasSearchBlocker = true;
+                    if (parent.GetComponent<ICaching>() != null)
+                    {
+                        // ICachingì„ ì°¾ì•˜ìœ¼ë©´ í˜„ì¬ ì˜¤ë¸Œì íŠ¸ë¶€í„° ìœ„ë¡œ ì˜¬ë¼ê°€ë©´ì„œ SearchBlocker ì²´í¬
+                        Transform current = gameObject.transform;
+                        bool shouldColor = true;
+                        Color colorToUse = cachingColor;
+
+                        while (current != parent && current != null)
+                        {
+                            SearchBlocker blocker = current.GetComponent<SearchBlocker>();
+                            if (blocker != null)
+                            {
+                                if (!blocker.EnableSearchChildren)
+                                {
+                                    colorToUse = searchBlockerColor;
+                                    break;
+                                }
+                                else if (current == gameObject.transform)
+                                {
+                                    // í˜„ì¬ ì˜¤ë¸Œì íŠ¸ê°€ SearchBlockerì´ë©´ì„œ EnableSearchChildrenì´ trueì¸ ê²½ìš°
+                                    colorToUse = searchBlockerColor;
+                                    break;
+                                }
+                            }
+                            current = current.parent;
+                        }
+
+                        if (shouldColor)
+                        {
+                            EditorGUI.DrawRect(backgroundRect, colorToUse);
+                        }
+                        break;
+                    }
+                    parent = parent.parent;
                 }
-                if (current.GetComponent<ICaching>() != null && !isMainCaching)
-                {
-                    hasCaching = true;
-                }
-                current = current.parent;
             }
-
-            // ±âÁ¸ ¹è°æ»ö ÀúÀå
-            Color oldColor = GUI.backgroundColor;
-
-            if (hasSearchBlocker)
-            {
-                // SearchBlocker°¡ ÀÖ´Â °æ¿ì »¡°£»ö ÇÏÀÌ¶óÀÌÆ®
-                GUI.backgroundColor = searchBlockerColor;
-                EditorGUI.DrawRect(selectionRect, searchBlockerColor);
-            }
-            else if (isMainCaching)
-            {
-                // ICachingÀ» Á÷Á¢ »ó¼Ó¹ŞÀº ¿ÀºêÁ§Æ®´Â ÆÄ¶õ»ö ÇÏÀÌ¶óÀÌÆ®
-                GUI.backgroundColor = cachingMainColor;
-                EditorGUI.DrawRect(selectionRect, cachingMainColor);
-            }
-            else if (hasCaching)
-            {
-                // ICachingÀÌ ÀÖ´Â °æ¿ì ÃÊ·Ï»ö ÇÏÀÌ¶óÀÌÆ®
-                GUI.backgroundColor = cachingColor;
-                EditorGUI.DrawRect(selectionRect, cachingColor);
-            }
-
-            // ±âÁ¸ ¹è°æ»ö º¹±¸
-            GUI.backgroundColor = oldColor;
         }
     }
 }

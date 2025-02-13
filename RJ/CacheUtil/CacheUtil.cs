@@ -230,10 +230,24 @@ public class {className} : ICached
 
     private void GetTransformsExceptSearchBlocker(Transform parent)
     {
-        if (parent.GetComponent<SearchBlocker>() != null)
-            return;
-
-        _transforms.Add(parent);
+        var searchBlocker = parent.GetComponent<SearchBlocker>();
+        if (searchBlocker != null)
+        {
+            if (!searchBlocker.EnableSearchChildren)
+                return;
+            else
+            {
+                foreach (Transform child in parent)
+                {
+                    GetTransformsExceptSearchBlocker(child);
+                }
+                return;
+            }
+        }
+        else
+        {
+            _transforms.Add(parent);
+        }
 
         foreach (Transform child in parent)
         {
