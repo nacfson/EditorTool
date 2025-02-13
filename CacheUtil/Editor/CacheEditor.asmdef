@@ -1,0 +1,16 @@
+{
+    "name": "CacheEditor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:0e0880131311bf447b635905c4421fd2"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,73 @@
+# ========== Unity ==========
+
+# User-specific files
+.idea/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln
+*.sln.ide
+
+# Unity generated files
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Dd]ebug/
+[Dd]ebugPublic/
+[Ll]ogs/
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# macOS specific files
+.DS_Store
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows Installer package files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# ========== JetBrains ==========
+
+# Rider
+.idea/
+
+# ========== User-specific files ==========
+
+# User-specific configuration files
+.vscode/
+
+# ========== Unity Package Manager ==========
+
+# Unity Package Manager directories
+npm/
+
+# ========== JetBrains Rider ==========
+.idea/
+
+# ========== Operating System ==========
+
+# Windows Installer files
+Thumbs.db
+ehthumbs.db
+
+# .NET files
+.vs/
+.vscode/
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Dd]ebug/
+[Dd]ebugPublic/
