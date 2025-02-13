@@ -6,8 +6,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
-using RJ_TC;
-
+namespace RJ_TC
+{
 public class CacheUtil : MonoBehaviour, ICaching
 {
     private Dictionary<string, string> _transformNameList = new Dictionary<string, string>();
@@ -158,7 +158,7 @@ public class {className} : ICached
 #endif
     }
 
-    public static void GenerateCMScript(string className)
+    public async static void GenerateCMScript(string className)
     {
         string scriptContent = $@"
     public static {className}{CM.sCS} G_TC({className} obj) => RJ_TC.CM.G_TCI(obj) as {className}{CM.sCS};
@@ -166,6 +166,34 @@ public class {className} : ICached
 
         string filePath = CM.sCM_PATH; // 수정할 파일 경로
 
+        // Check if the file exists
+        if (!File.Exists(filePath))
+        {
+            // Create the directory if it doesn't exist
+            string directoryPath = Path.GetDirectoryName(filePath);
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            // Create the script file with the required content
+            string cContent = @"
+namespace RJ_TC
+{
+    public static class C
+    {
+        //dont remove under annotation!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //---------------------------------------------------------------------------------
+        //dont remove under annotation!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        //cachedGetMethod
+    }
+}
+";
+            await File.WriteAllTextAsync(filePath, cContent);
+
+            Debug.Log($"File created at: {filePath}");
+        }
         // 파일을 읽어들입니다.
         string fileContent = File.ReadAllText(filePath);
 
@@ -255,4 +283,7 @@ public class {className} : ICached
             GetTransformsExceptSearchBlocker(child);
         }
     }
+}
+
+
 }

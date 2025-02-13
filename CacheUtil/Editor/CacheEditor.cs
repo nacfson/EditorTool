@@ -5,6 +5,8 @@ using UnityEngine;
 using Unity.VisualScripting;
 using PlasticPipe.PlasticProtocol.Messages;
 
+namespace RJ_TC
+{
 [CustomEditor(typeof(MonoBehaviour), true)]
 public class CacheEditor : Editor
 {
@@ -172,3 +174,6 @@ public class CacheEditor : Editor
         }
     }
 }
+
+}
+

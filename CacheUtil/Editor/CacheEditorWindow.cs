@@ -5,6 +5,8 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
 
+namespace RJ_TC
+{
 public class CacheEditorWindow : EditorWindow
 {
     private Dictionary<GameObject, bool> _toggleStates = new Dictionary<GameObject, bool>();
@@ -345,4 +347,6 @@ public class CacheEditorWindow : EditorWindow
         }
         return null;
     }
+}
+
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+namespace RJ_TC
+{
 public interface ICaching 
 {
     public bool Caching();
@@ -10,3 +12,5 @@ public interface ICaching
     public bool IsCached {get; } 
     public bool IsCreatedScript {get;}
 }
+}
+

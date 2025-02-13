@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+namespace RJ_TC
+{
 #if UNITY_EDITOR
 [InitializeOnLoad]
 public class CacheHierarchyEditor
@@ -82,3 +84,4 @@ public class CacheHierarchyEditor
     }
 }
 #endif
+}
