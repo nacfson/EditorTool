@@ -13,6 +13,12 @@ In the Unity Inspector, go to Caching => Generate to generate the caching script
 Access Variables
 Use CM.G_TC(this).variable to access variables through the current instance (this => MonoBehaviour).
 
+
+
+
+
+
+
 🚀 MonoBehaviour의 변환 캐싱
 📑 개요
 효율적인 변환 캐싱을 위해, 오브젝트의 루트 클래스에서 CacheUtil을 상속합니다.
