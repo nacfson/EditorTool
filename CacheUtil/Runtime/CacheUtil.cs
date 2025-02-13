@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
-
+using RJ_TC;
 public class CacheUtil : MonoBehaviour, ICaching
 {
     private Dictionary<string, string> _transformNameList = new Dictionary<string, string>();
@@ -157,18 +157,46 @@ public class {className} : ICached
 #endif
     }
 
-    public static void GenerateCMScript(string className)
+    public async static void GenerateCgetScript(string className)
     {
         string scriptContent = $@"
-    public static {className}{CM.sCS} G_TC({className} obj) => G_TCI(obj) as {className}{CM.sCS};
+    public static {className}{CM.sCS} Get({className} obj) => G_TCI(obj) as {className}{CM.sCS};
 ";  // 삽입할 코드 내용
 
-        string filePath = CM.sCM_PATH; // 수정할 파일 경로
+        string filePath = $"{Application.dataPath}/RJ/Script_Cached/C.cs"; // File path to check and create
 
+        // Check if the file exists
+        if (!File.Exists(filePath))
+        {
+            // Create the directory if it doesn't exist
+            string directoryPath = Path.GetDirectoryName(filePath);
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            // Create the script file with the required content
+            string cContent = @"
+namespace RJ_TC
+{
+    public static class C
+    {
+        //dont remove under annotation!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //---------------------------------------------------------------------------------
+        //dont remove under annotation!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        //cachedGetMethod
+    }
+}
+";
+            await File.WriteAllTextAsync(filePath, cContent);
+
+            Debug.Log($"File created at: {filePath}");
+        }
         // 파일을 읽어들입니다.
         string fileContent = File.ReadAllText(filePath);
 
-        if(fileContent.Contains(scriptContent))
+        if (fileContent.Contains(scriptContent))
         {
             Debug.Log($"이미 중복된 코드가 추가되어있는 상태입니다.");
             return;

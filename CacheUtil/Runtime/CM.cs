@@ -3,44 +3,40 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 
-public static class CM
+namespace RJ_TC
 {
-    public static readonly string sCS = "_C";
-    public static readonly string sCS_PATH = $"{Application.dataPath}/RJ/Script_Cached/";
-    public static readonly string sCM_PATH = $"{Application.dataPath}/RJ/CacheUtil/CM.cs";
-
-    private static Dictionary<int, ICached> s_cacheUtilDictonary = new();
-
-    private static ICached G_TCI(MonoBehaviour obj)
+    public static class CM
     {
-        if (obj == null) return null;
-        int hashCode = obj.GetHashCode();
+        public static readonly string sCS = "_C";
+        public static readonly string sCS_PATH = $"Packages/com.rj.unitytools/Script_Cached/";
+        public static readonly string sCM_PATH = $"{Application.dataPath}/RJ/Script_Cached/C.cs"; // File path to check and create
 
-        if(s_cacheUtilDictonary.ContainsKey(hashCode) == false)
+        private static Dictionary<int, ICached> s_cacheUtilDictonary = new();
+
+        public static ICached G_TCI(MonoBehaviour obj)
         {
-            try
+            if (obj == null) return null;
+            int hashCode = obj.GetHashCode();
+
+            if (s_cacheUtilDictonary.ContainsKey(hashCode) == false)
             {
-                string cachedTypeName = $"{obj.GetType().Name}{sCS}";
-                Type type = Type.GetType(cachedTypeName);
-                object[] param = new object[] { obj.transform };
-                var instance = Activator.CreateInstance(type, param) as ICached;
-                s_cacheUtilDictonary.Add(hashCode, instance);
+                try
+                {
+                    string cachedTypeName = $"{obj.GetType().Name}{sCS}";
+                    Type type = Type.GetType(cachedTypeName);
+                    object[] param = new object[] { obj.transform };
+                    var instance = Activator.CreateInstance(type, param) as ICached;
+                    s_cacheUtilDictonary.Add(hashCode, instance);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"Message: {ex.Message}");
+                    return null;
+                }
             }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Message: {ex.Message}");
-                return null;
-            }
+            return s_cacheUtilDictonary[hashCode];
         }
-        return s_cacheUtilDictonary[hashCode];
     }
-    //dont remove under annotation!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //---------------------------------------------------------------------------------
-    //dont remove under annotation!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-    //cachedGetMethod
 }
-
 
 
