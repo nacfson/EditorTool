@@ -1,42 +1,22 @@
-# 🌟 Caching Setup
+# 캐싱 시스템 사용법
+
+## 1. 인스펙터에서 생성
+
+캐싱하고 싶은 오브젝트에 `ICaching`을 상속받은 컴포넌트를 추가합니다.  
+인스펙터에서 **Caching**을 통해 오브젝트의 트랜스폼 구조를 캐싱한 후, **Generate Scripts** 버튼을 눌러 스크립트를 생성합니다.
+
+## 2. 에디터에서 생성
+
+1. 유니티 상단 툴에서 `Caching` → `CacheEditor`로 들어갑니다.
+2. `FindingObjects` 버튼을 통해 `ICaching`을 상속받은 컴포넌트를 가진 프리팹을 찾습니다.
+3. **Generate Scripts** 버튼을 눌러 스크립트를 생성합니다.
+
+## 3. 스크립트 생성 이후 활용
+
+생성된 스크립트는 `Assets/RJ/Script_Cached/` 경로 아래에 위치합니다.  
+여기서 `C` 스크립트와 `ICaching`을 상속받은 클래스 `{className}_C`가 생성된 것을 확인할 수 있습니다.  
+이제 캐싱된 트랜스폼을 사용하려면 `C.G_TC()` 메서드에 특정 클래스를 매개변수로 전달하면, 해당 캐싱된 클래스가 반환됩니다.  
+캐싱된 클래스에는 트랜스폼 이름들이 포함되어 있으므로, 바로 사용 가능합니다.
 
 ---
-
-## 1️⃣ **캐싱하고 싶은 클래스에 `CacheUtil`을 상속받는다.**  
-클래스를 작성할 때, `CacheUtil`을 상속받으면 캐싱 기능을 사용할 수 있습니다.  
-이렇게 하여 캐싱 로직을 추가해 주세요.
-
----
-
-## 2️⃣ **Caching → Generate Script 순으로 인스펙터 창에서 실행한다.**  
-인스펙터 창에서 **Caching**을 먼저 클릭하고, 그 후 **Generate Script**를 실행합니다.  
-⚠️ 이 순서를 반드시 지켜야 합니다!
-
----
-
-## 3️⃣ **코드에서 `RJ_TC` 네임스페이스 안에 있는 `C`에 접근하여 `C.G_TC(특정 class)`로 접근한다.**  
-`RJ_TC.C.G_TC`를 사용하여 원하는 클래스를 호출할 수 있습니다.  
-이 방법으로 필요한 클래스를 쉽게 접근할 수 있습니다.
-
----
-
-# 🌟 Caching Setup (English)
-
----
-
-## 1️⃣ **Inherit `CacheUtil` in the class you want to cache.**  
-By inheriting `CacheUtil`, you can implement caching in your class.
-
----
-
-## 2️⃣ **Run in Inspector in the order of Caching → Generate Script.**  
-Make sure to click **Caching** first, followed by **Generate Script**.  
-⚠️ Always follow this sequence!
-
----
-
-## 3️⃣ **Access `C` within the `RJ_TC` namespace and use `C.G_TC(specific class)` to access it.**  
-You can easily access your specific class using `RJ_TC.C.G_TC`.
-
----
-
+이 과정을 통해 캐싱된 오브젝트의 트랜스폼 구조를 효율적으로 관리하고 활용할 수 있습니다.
