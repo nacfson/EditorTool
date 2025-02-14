@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -8,34 +7,70 @@ using UnityEditor;
 using UnityEngine;
 namespace RJ_TC
 {
-public class CacheUtil : MonoBehaviour, ICaching
+public class CacheUtil : ICaching
 {
-    private Dictionary<string, string> _transformNameList = new Dictionary<string, string>();
-    private Dictionary<int, string> _transformList = new Dictionary<int, string>();
-    private List<Transform> _transforms = new List<Transform>();
-
-    public bool IsCached { get => _transformNameList.Count > 0; }
-    public bool IsCreatedScript
+    public CacheUtil(MonoBehaviour root)
     {
-        get
-        {
-            //, $"{this.GetType().Name}{CM.sCS}"
-            string path = $"{Application.dataPath}/RJ/Script_Cached/{this.GetType().Name}{CM.sCS}.cs";
-            bool isExist = File.Exists(path);
-            return isExist;
-        }
+        Root = root;
     }
+        public MonoBehaviour Root;
+        private Dictionary<string, string> _transformNameList = new Dictionary<string, string>();
+        private Dictionary<int, string> _transformList = new Dictionary<int, string>();
+        private List<Transform> _transforms = new List<Transform>();
+
+        public bool IsCached { get => _transformNameList.Count > 0; }
+        public bool IsCreatedScript
+        {
+            get
+            {
+                if(Root == null) return false;
+                //, $"{this.GetType().Name}{CM.sCS}"
+                string path = $"{Application.dataPath}/RJ/Script_Cached/{Root.GetType().Name}{CM.sCS}.cs";
+                bool isExist = File.Exists(path);
+                return isExist;
+            }
+        }
+
+        public void GetTransformsExceptSearchBlocker(Transform parent)
+        {
+            var searchBlocker = parent.GetComponent<SearchBlocker>();
+            if (searchBlocker != null)
+            {
+                if (!searchBlocker.EnableSearchChildren)
+                    return;
+                else
+                {
+                    foreach (Transform child in parent)
+                    {
+                        GetTransformsExceptSearchBlocker(child);
+                    }
+                    return;
+                }
+            }
+            else
+            {
+                if (parent != Root.transform)
+                {
+                    _transforms.Add(parent);
+                }
+            }
+
+            foreach (Transform child in parent)
+            {
+                GetTransformsExceptSearchBlocker(child);
+            }
+        }
+
     public virtual bool Caching()
     {
         _transformNameList = new Dictionary<string, string>();
         _transformList = new Dictionary<int, string>();
         _transforms.Clear();
 
-        GetTransformsExceptSearchBlocker(transform);
-
+        GetTransformsExceptSearchBlocker(Root.transform);
         foreach (Transform t in _transforms)
         {
-            if (t == transform) continue;
+            if (t == Root) continue;
 
             StringBuilder sb = new StringBuilder();
             sb.Append(t.name);
@@ -43,7 +78,7 @@ public class CacheUtil : MonoBehaviour, ICaching
             Transform parent = t.parent;
             int callcnt = 0;
 
-            while (parent != null && parent != this.transform)
+            while (parent != null && parent != Root.transform)
             {
                 if (_transformList.TryGetValue(parent.GetHashCode(), out string name))
                 {
@@ -159,12 +194,10 @@ public class {className} : ICached
 #endif
     }
 
-    public async static void GenerateCMScript(string className)
+    public async static void GenerateCScript(string className,string namespaceName)
     {
-        string scriptContent = $@"
-    public static {className}{CM.sCS} G_TC({className} obj) => RJ_TC.CM.G_TCI(obj) as {className}{CM.sCS};
-";  // 삽입할 코드 내용
-
+        string scriptContent = CM.GetGTCS_String(className,namespaceName);
+        
         string filePath = CM.sCM_PATH; // 수정할 파일 경로
 
         // Check if the file exists
@@ -258,33 +291,6 @@ namespace RJ_TC
         return sanitized;
     }
 
-    private void GetTransformsExceptSearchBlocker(Transform parent)
-    {
-        var searchBlocker = parent.GetComponent<SearchBlocker>();
-        if (searchBlocker != null)
-        {
-            if (!searchBlocker.EnableSearchChildren)
-                return;
-            else
-            {
-                foreach (Transform child in parent)
-                {
-                    GetTransformsExceptSearchBlocker(child);
-                }
-                return;
-            }
-        }
-        else
-        {
-            _transforms.Add(parent);
-        }
-
-        foreach (Transform child in parent)
-        {
-            GetTransformsExceptSearchBlocker(child);
-        }
-    }
 }
-
 
 }

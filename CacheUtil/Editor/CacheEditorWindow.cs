@@ -11,6 +11,7 @@ public class CacheEditorWindow : EditorWindow
 {
     private Dictionary<GameObject, bool> _toggleStates = new Dictionary<GameObject, bool>();
     private List<GameObject> _prefabList = new List<GameObject>();
+    private static Dictionary<GameObject,CacheUtil> _cacheUtilDict = new Dictionary<GameObject,CacheUtil>();
     private Type _parentClassType;
     private string _debugString = string.Empty;
     
@@ -42,12 +43,48 @@ public class CacheEditorWindow : EditorWindow
         DisplayTogglePrefabs();
         DisplayCachingButton();
     }
+    private void OnEnable()
+    {
+        // 윈도우가 활성화될 때 초기화
+        ClearDictionaries();
+    }
 
+    private void OnDisable()
+    {
+        // 윈도우가 비활성화될 때 정리
+        ClearDictionaries();
+    }
+
+    private void ClearDictionaries()
+    {
+        _toggleStates.Clear();
+        _prefabList.Clear();
+        _cacheUtilDict.Clear();
+    }
+
+    private CacheUtil GetOrCreateCacheUtil(GameObject prefab)
+    {
+        if (prefab == null) return null;
+        
+        // Dictionary에서 CacheUtil을 가져오거나 새로 생성
+        if (!_cacheUtilDict.TryGetValue(prefab, out CacheUtil cacheUtil))
+        {
+            var mono = prefab.GetComponent<MonoBehaviour>();
+            if (mono != null)
+            {
+                cacheUtil = new CacheUtil(mono);
+                _cacheUtilDict[prefab] = cacheUtil;
+            }
+        }
+        
+        return cacheUtil;
+    }
     private bool DisplaySelectingParentType()
     {
         if (_cachingClassNames == null)
         {
-            _cachingClassNames = GetCachingClassNames();
+            //_cachingClassNames = GetCachingClassNames();
+            _cachingClassNames = new string[]{typeof(ICaching).FullName};
         }
 
         // 선택할 수 있는 클래스 팝업 메뉴 생성
@@ -55,6 +92,7 @@ public class CacheEditorWindow : EditorWindow
         {
             _selectedClassIndex = EditorGUILayout.Popup("Parent Class", _selectedClassIndex, _cachingClassNames);
             _parentClassType = FindTypeByFullName(_cachingClassNames[_selectedClassIndex]);
+            //_parentClassType = typeof(CacheUtil);
         }
         catch (Exception e)
         {
@@ -80,13 +118,13 @@ public class CacheEditorWindow : EditorWindow
 
             GUILayout.BeginHorizontal();
             //GUILayout.FlexibleSpace();
-            if (GUILayout.Button(_selectAll ? "Deselect All" : "Select All"))
+            if (GUILayout.Button(_selectAll ? "Deselect All" : "Select All", GUILayout.ExpandWidth(true)))
             {
                 // 전체 선택 또는 해제
                 _selectAll = !_selectAll;
                 SetAllToggleStates(_selectAll);
             }
-            if(GUILayout.Button($"Clear"))
+            if(GUILayout.Button($"Clear", GUILayout.ExpandWidth(true)))
             {
                 _toggleStates.Clear();
                 _prefabList.Clear();
@@ -104,7 +142,7 @@ public class CacheEditorWindow : EditorWindow
 
             // Horizontal layout을 사용하여 가로로 배치
             GUILayout.BeginHorizontal();
-            float buttonWidth = 150f; // 버튼의 가로 크기 설정
+            float buttonWidth = 80f; // 버튼의 가로 크기 설정
             int itemsPerRow = Mathf.FloorToInt(position.width / buttonWidth); // 한 행에 배치할 버튼 개수
 
             // Prefab 목록을 가져오고 각 항목을 토글
@@ -114,16 +152,16 @@ public class CacheEditorWindow : EditorWindow
 
             foreach (var prefab in _toggleStates.Keys.ToList())
             {
+                CacheUtil cacheUtil = GetOrCreateCacheUtil(prefab);
                 string className = prefab.name;
-                if(prefab.TryGetComponent(out CacheUtil cacheUtil))
+                if(cacheUtil != null)
                 {
-                    className = cacheUtil.GetType().Name;
+                    className = cacheUtil.Root.GetType().Name;
                 }
                 string cacheClassName = $"{(className)}{CM.sCS}";
                 bool findedCachedClass = FindCachClass(cacheClassName);
 
-
-                bool newState = GUILayout.Toggle(_toggleStates[prefab], prefab.name, GUILayout.Width(buttonWidth));
+                bool newState = GUILayout.Toggle(_toggleStates[prefab], prefab.name, GUILayout.ExpandWidth(true));
                 if (newState != _toggleStates[prefab])
                 {
                     // 개별 토글이 변경되면 _selectAll 상태 갱신
@@ -172,7 +210,7 @@ public class CacheEditorWindow : EditorWindow
         // 버튼을 수평으로 배치
         GUILayout.BeginHorizontal();
         GUILayout.FlexibleSpace();
-
+        
         // 초록색 버튼
         GUI.backgroundColor = Color.green;
         if (GUILayout.Button("Finding Objects", GUILayout.Width(200)))
@@ -231,12 +269,14 @@ public class CacheEditorWindow : EditorWindow
                 if (state.Value)
                 {
                     // 여기서 필요한 캐시 작업을 진행하세요.
-                    if (state.Key.TryGetComponent(out CacheUtil mono))
+                    if (_cacheUtilDict.TryGetValue(state.Key,out CacheUtil mono))
                     {
-                        string className = mono.GetType().Name;
+                        Type type = mono.Root.GetType();
+                        string className = type.Name;
+                        string namespaceName = type.Namespace;
                         mono.Caching();
                         mono.CreateScript(className);
-                        CacheUtil.GenerateCMScript(className);
+                        CacheUtil.GenerateCScript(className,namespaceName);
                     }
                 }
             }
@@ -246,22 +286,29 @@ public class CacheEditorWindow : EditorWindow
     {
         if (_toggleStates.Count > 0)
         {
-            Debug.Log($"ToggleStatesCount: {_toggleStates.Count}");
             foreach (var state in _toggleStates)
             {
                 if (state.Value)
                 {
                     var prefab = state.Key;
                     string className = prefab.name;
-                    if (prefab.TryGetComponent(out CacheUtil cacheUtil))
+                    string namespaceName = string.Empty;
+                    if (_cacheUtilDict.TryGetValue(prefab,out CacheUtil cacheUtil))
                     {
-                        className = cacheUtil.GetType().Name;
+                        Type type = cacheUtil.Root.GetType();
+
+                        className = type.Name;
+                        namespaceName = type.Namespace;
+                    }
+                    else
+                    {
+                        return;
                     }
                     //string cachedScriptName = CacheUtil.SanitizeVariableName($"{className}{CM.sCS}");
                     string cachedScriptName = $"{className}{CM.sCS}";
 
                     Debug.Log($"CachedScriptName: {cachedScriptName}");
-                    CacheEditor.RemoveCScript(className);
+                    CacheEditor.RemoveCScript(className,namespaceName);
 
                     // Unity 프로젝트 내에서 해당 Cached 클래스 파일 찾기
                     string[] guids = AssetDatabase.FindAssets(cachedScriptName);
@@ -327,7 +374,7 @@ public class CacheEditorWindow : EditorWindow
     {
         var cachingClassTypes = AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(assembly => assembly.GetTypes())
-            .Where(type => typeof(CacheUtil).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
+            .Where(type => typeof(ICaching).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
             .ToList();
 
         // Ÿ���� ���ڿ� �迭�� ��ȯ�Ͽ� ��ȯ

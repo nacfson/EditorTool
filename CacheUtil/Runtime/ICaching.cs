@@ -7,10 +7,6 @@ namespace RJ_TC
 {
 public interface ICaching 
 {
-    public bool Caching();
-    public void MakingScript();
-    public bool IsCached {get; } 
-    public bool IsCreatedScript {get;}
 }
 }
 

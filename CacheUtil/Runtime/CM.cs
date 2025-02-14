@@ -8,7 +8,7 @@ namespace RJ_TC
     public static class CM
     {
         public static readonly string sCS = "_C";
-        public static readonly string sCS_PATH = $"Packages/com.rj.unitytools/Script_Cached/";
+        public static readonly string sCS_PATH = $"{Application.dataPath}/RJ/Script_Cached/";
         public static readonly string sCM_PATH = $"{Application.dataPath}/RJ/Script_Cached/C.cs"; // File path to check and create
 
         private static Dictionary<int, ICached> s_cacheUtilDictonary = new();
@@ -54,8 +54,17 @@ namespace RJ_TC
 
             return null;  // 타입을 찾지 못하면 null 반환
         }
+        public static string GetGTCS_String(string className, string namespaceName)
+        {
+            if (string.IsNullOrEmpty(namespaceName))
+            {
+                return @$"
+                public static {className}{CM.sCS} G_TC({className} obj) => RJ_TC.CM.G_TCI(obj) as {className}{CM.sCS};";
+            }
+            return @$"
+            public static {className}{CM.sCS} G_TC({namespaceName}.{className} obj) => RJ_TC.CM.G_TCI(obj) as {className}{CM.sCS};";
+        }
     }
-
 }
 
 
