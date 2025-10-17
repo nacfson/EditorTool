@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System.IO;
 using UnityEditor;
 using System;
@@ -193,3 +194,4 @@ namespace RJ_TC
 
 }
 
+#endif
